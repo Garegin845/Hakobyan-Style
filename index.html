@@ -111,6 +111,32 @@
 
     <!-- Firebase և Լոգիկա -->
     <script type="module">
+        // -----------------------------------------------------------
+        // ԿԱՐԵՎՈՐ: ԴՈՒՔ ՊԵՏՔ Է ԱՅՍ ՕԲՅԵԿՏԸ ՓՈԽԱՐԻՆԵՔ ՁԵՐ ԻՐԱԿԱՆ FIREBASE ԿՈՆՖԻԳՈՎ։
+        // Եթե այս արժեքները չփոխեք, Web App-ը ՉԻ աշխատի GitHub Pages-ում։
+      // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCXp9sfT5rTtKQX95wQi13ZGhfEbqNeMxQ",
+  authDomain: "wildberries-shop.firebaseapp.com",
+  projectId: "wildberries-shop",
+  storageBucket: "wildberries-shop.firebasestorage.app",
+  messagingSenderId: "461291386921",
+  appId: "1:461291386921:web:970ed17cf9a25893354438",
+  measurementId: "G-EYGVT824J5"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+        // -----------------------------------------------------------
+
         // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -123,9 +149,7 @@
             query, 
             addDoc, 
             serverTimestamp,
-            getDocs,
-            where,
-            orderBy 
+            getDoc, // Ավելացված է seeded check-ի համար
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -148,16 +172,35 @@
 
         function initializeFirebase() {
             try {
-                // 1. Ստանում ենք Գլոբալ Փոփոխականները
-                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                let firebaseConfig;
+                let initialAuthToken = null;
                 
-                if (Object.keys(firebaseConfig).length === 0) {
-                    console.error("Firebase config is missing or empty. This may prevent data operations.");
-                    // Փոխարենը կոդը դադարեցնելու, մենք ցույց կտանք նախազգուշացումը և կթողնենք, որ initializeApp-ը փորձի աշխատել
-                    document.getElementById('auth-status').textContent = "⚠️ Կոնֆիգուրացիան բացակայում է։";
+                // Ստուգում ենք՝ արդյոք գտնվում ենք Canvas միջավայրում (ոչ GitHub Pages)
+                if (typeof __firebase_config !== 'undefined' && typeof __app_id !== 'undefined') {
+                    // Canvas միջավայր
+                    firebaseConfig = JSON.parse(__firebase_config);
+                    appId = __app_id;
+                    initialAuthToken = __initial_auth_token;
+                    console.log("Using Canvas environment config.");
+                } else {
+                    // Արտաքին հոսթինգ (GitHub Pages/Telegram Web App)
+                    // Օգտագործում ենք EXTERNAL_FIREBASE_CONFIG-ը
+                    if (EXTERNAL_FIREBASE_CONFIG.projectId && EXTERNAL_FIREBASE_CONFIG.projectId !== "your-project-id") {
+                        firebaseConfig = EXTERNAL_FIREBASE_CONFIG;
+                        // Օգտագործում ենք projectId-ն որպես appId, որպեսզի համապատասխանի Firestore կառուցվածքին
+                        appId = firebaseConfig.projectId; 
+                        console.log("Using external Firebase config.");
+                    } else {
+                         // Եթե Կոնֆիգուրացիան ցուցադրական է
+                        document.getElementById('auth-status').textContent = "⚠️ ՓՈԽԱՐԻՆԵԼ Firebase Կոնֆիգը։";
+                        throw new Error("Missing real external Firebase configuration.");
+                    }
                 }
+                
+                if (Object.keys(firebaseConfig).length === 0 || !firebaseConfig.projectId) {
+                    throw new Error("Firebase config object is empty or invalid.");
+                }
+
 
                 // 2. Ինիցիալիզացիա
                 const app = initializeApp(firebaseConfig);
@@ -179,26 +222,24 @@
                     } else {
                         // Եթե օգտատերը գրանցված չէ, փորձում ենք մուտք գործել
                         try {
-                            if (initialAuthToken) {
-                                console.log("Signing in with custom token...");
-                                await signInWithCustomToken(auth, initialAuthToken);
-                            } else {
-                                console.log("Signing in anonymously...");
-                                await signInAnonymously(auth);
-                            }
+                            // Այս դեպքում initialAuthToken-ը GitHub-ում չի լինի, այնպես որ անանուն մուտք կլինի
+                            console.log("Signing in anonymously...");
+                            await signInAnonymously(auth);
+                            
                         } catch (error) {
                             console.error("Authentication failed:", error);
                             document.getElementById('auth-status').textContent = "❌ Ավտորիզացիայի սխալ։";
-                            userId = crypto.randomUUID(); // Անանուն ID, եթե Firebase-ը ձախողվի
+                            // Իրական ID-ի փոխարեն գեներացնում ենք անանուն ID
+                            userId = crypto.randomUUID(); 
                             document.getElementById('user-id-display').textContent = `Անանուն ID: ${userId}`;
-                            startDataListeners(); // Փորձում ենք գոնե տվյալները բեռնել
+                            startDataListeners(); 
                         }
                     }
                 });
 
             } catch (error) {
                 console.error("Error during Firebase initialization:", error);
-                document.getElementById('auth-status').textContent = "❌ Ծրագրի ինիցիալիզացիայի սխալ։";
+                document.getElementById('auth-status').textContent = `❌ Ծրագրի ինիցիալիզացիայի սխալ։ (${error.message.substring(0, 50)}...)`;
             }
         }
 
@@ -218,20 +259,29 @@
         
         // Մոք ապրանքների սկզբնական ավելացում (միայն մեկ անգամ)
         async function seedMockProducts() {
+            if (!db || !appId || !userId) return; // Պետք է ստուգել db-ի առկայությունը
             const productsRef = getProductsCollectionRef();
             if (!productsRef) return;
 
-            const snapshot = await getDocs(productsRef);
-            if (!snapshot.empty) {
-                console.log("Mock products already seeded.");
-                return;
-            }
+            // Ստուգում ենք, թե արդյոք mock տվյալներն արդեն ավելացվել են
+            const seededCheckDoc = doc(db, `artifacts/${appId}/public/data/metadata/seeded`);
+            try {
+                const checkSnapshot = await getDoc(seededCheckDoc);
+                if (checkSnapshot.exists()) {
+                    console.log("Mock products already seeded.");
+                    return;
+                }
 
-            console.log("Seeding mock products...");
-            for (const product of mockProducts) {
-                // Օգտագործում ենք անունը որպես ID
-                const docRef = doc(productsRef, product.name.replace(/\s/g, '_'));
-                await setDoc(docRef, product);
+                console.log("Seeding mock products...");
+                for (const product of mockProducts) {
+                    // Օգտագործում ենք անունը որպես ID
+                    const docRef = doc(productsRef, product.name.replace(/\s/g, '_').replace(/[^a-zA-Z0-9_]/g, ''));
+                    await setDoc(docRef, product);
+                }
+                // Նշում ենք, որ ապրանքները ստեղծվել են
+                await setDoc(seededCheckDoc, { timestamp: serverTimestamp(), seededBy: userId });
+            } catch (error) {
+                console.warn("Could not check/set seeded status. Mock data seeding attempted (or skipped).", error);
             }
         }
 
@@ -282,25 +332,41 @@
                     <img src="${product.image_url}" alt="${product.name}" onerror="this.onerror=null;this.src='https://placehold.co/300x200/cccccc/333333?text=Նկարը+Բացակայում+է';" class="w-full h-32 object-cover rounded-lg mb-3">
                     <h3 class="font-bold text-lg mb-1">${product.name}</h3>
                     <p class="text-sm text-gray-600 mb-2">${product.description}</p>
-                    <p class="text-xl font-extrabold text-[#5d3d82]">${product.price.toLocaleString('hy-AM')} ֏</p>
-                    <!-- Խուսափում ենք alert()-ից, բայց այս դեպքում թույլատրելի է որպես մոք ֆունկցիոնալություն -->
-                    <button onclick="alert('Ապրանքը զամբյուղում է։')" class="mt-3 w-full py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-150 text-sm">
+                    <p class="text-xl font-extrabold text-[#5d3d82]">${(product.price || 0).toLocaleString('hy-AM')} ֏</p>
+                    <button onclick="showCartMessage('${product.name}')" class="mt-3 w-full py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-150 text-sm">
                         Ավելացնել Զամբյուղ
                     </button>
                 </div>
             `).join('');
         }
+        
+        // Փոխարինում ենք alert-ը console.log-ով
+        window.showCartMessage = function(productName) {
+            console.log(`Ապրանքը զամբյուղում է։ ${productName}`);
+            // Ժամանակավոր լուծում՝ ցուցադրական նպատակներով (իրական ծրագրում օգտագործել մոդալ)
+            alert(`${productName}-ն ավելացվել է զամբյուղ (Mock)`); 
+        }
 
         /** Ցուցադրում է օգտատիրոջ ուղարկած հարցումները */
         function renderUserRequests(requests) {
             const container = document.getElementById('requests-container');
-            if (requests.length === 0) {
+            // Սորտավորում ենք JavaScript-ով, քանի որ Firestore-ի orderBy-ն կարող է խնդիրներ առաջացնել
+            const sortedRequests = requests.sort((a, b) => {
+                const timeA = a.timestamp ? (a.timestamp.toDate ? a.timestamp.toDate().getTime() : new Date(a.timestamp).getTime()) : 0;
+                const timeB = b.timestamp ? (b.timestamp.toDate ? b.timestamp.toDate().getTime() : new Date(b.timestamp).getTime()) : 0;
+                return timeB - timeA; // Վերջինը սկզբում
+            });
+            
+            if (sortedRequests.length === 0) {
                 container.innerHTML = `<p class="text-gray-500 text-sm">Դուք դեռ հարցումներ չեք ուղարկել։</p>`;
                 return;
             }
 
-            container.innerHTML = requests.map(request => {
-                const date = request.timestamp ? new Date(request.timestamp.toDate()).toLocaleDateString('hy-AM') : 'Անհայտ ամսաթիվ';
+            container.innerHTML = sortedRequests.map(request => {
+                // Փորձում ենք ճիշտ ստանալ ամսաթիվը
+                const date = request.timestamp 
+                    ? new Date(request.timestamp.toDate ? request.timestamp.toDate() : request.timestamp).toLocaleDateString('hy-AM') 
+                    : 'Անհայտ ամսաթիվ';
                 return `
                     <div class="bg-gray-100 p-4 rounded-lg border border-gray-200">
                         <p class="font-semibold text-base">${request.name} (Հարցում)</p>
@@ -348,8 +414,8 @@
             btn.disabled = true;
             btn.textContent = '⏳ Ուղարկվում է...';
 
-            if (!userId) {
-                messageEl.textContent = '❌ Խնդրում ենք սպասել, մինչև համակարգը կմիանա։';
+            if (!db || !userId) {
+                messageEl.textContent = '❌ Խնդրում ենք սպասել, մինչև համակարգը կմիանա կամ ստուգել կոնֆիգուրացիան։';
                 messageEl.classList.remove('hidden', 'text-green-500', 'text-red-500');
                 messageEl.classList.add('text-red-500');
                 btn.disabled = false;
