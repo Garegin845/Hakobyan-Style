@@ -4,464 +4,387 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wildberries Խանութ</title>
-    <!-- Բեռնում ենք Tailwind CSS-ը -->
+    <!-- Tailwind CSS-ի ներբեռնում -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter տառատեսակ -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7f7f7; /* Թեթև մոխրագույն ֆոն */
+            background-color: var(--tg-theme-bg-color, #f4f4f4); /* Telegram ֆոնի գույն */
+            color: var(--tg-theme-text-color, #333);
+            transition: background-color 0.3s, color 0.3s;
         }
-        /* Կոճակի հիմնական դիզայնը */
-        .tab-button {
-            transition: all 0.2s;
-            border-radius: 0.5rem;
+        .header, .footer {
+            background-color: var(--tg-theme-secondary-bg-color, #ffffff); /* Երկրորդական ֆոնի գույն */
         }
-        .tab-button.active {
-            background-color: #5d3d82; /* Wildberries-ի նման գույն */
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        .main-button {
+            background-color: var(--tg-theme-button-color, #007bff);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            transition: background-color 0.2s;
+        }
+        .main-button:active {
+            filter: brightness(0.9);
         }
         .product-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: pointer;
+            border-color: var(--tg-theme-secondary-bg-color, #e5e7eb);
         }
-        .product-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        .skeleton {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body>
+    
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Գլխամաս (Header) -->
+        <div class="header shadow-md p-4 sticky top-0 z-10 flex justify-between items-center rounded-b-xl">
+            <h1 class="text-xl font-bold">Wildberries Խանութ 🛍️</h1>
+            <div id="user-info" class="text-sm"></div>
+        </div>
 
-    <div id="app" class="max-w-4xl mx-auto p-4 sm:p-6">
-        <!-- Գլխավոր Վերնագիր և Նավիգացիա -->
-        <header class="mb-6">
-            <h1 class="text-3xl font-extrabold text-[#5d3d82] mb-4 text-center">🛍 Wildberries Խանութ</h1>
-            <div id="user-info" class="text-center text-sm mb-4">
-                <p id="auth-status" class="text-gray-500">Միանում է...</p>
-                <p id="user-id-display" class="text-xs text-gray-400 mt-1"></p>
-            </div>
+        <!-- Ապրանքների Ցուցակ (Products List) -->
+        <main class="flex-grow p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="products-container">
+            <!-- Այստեղ կավելանան ապրանքները JS-ի միջոցով -->
             
-            <div id="tabs" class="flex justify-center p-1 bg-white rounded-xl shadow-lg">
-                <button data-tab="products" class="tab-button active w-1/2 py-2.5 font-semibold text-sm">
-                    Ապրանքներ
-                </button>
-                <button data-tab="request" class="tab-button w-1/2 py-2.5 font-semibold text-sm">
-                    Պատվեր
-                </button>
+            <!-- Բեռնման Սկելետոն -->
+            <div id="loading-skeleton" class="col-span-2 md:col-span-3 lg:col-span-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="product-card bg-gray-200 shadow-lg p-3 rounded-xl skeleton h-64"></div>
+                <div class="product-card bg-gray-200 shadow-lg p-3 rounded-xl skeleton h-64"></div>
+                <div class="product-card bg-gray-200 shadow-lg p-3 rounded-xl skeleton h-64"></div>
+                <div class="product-card bg-gray-200 shadow-lg p-3 rounded-xl skeleton h-64 hidden md:block"></div>
             </div>
-        </header>
 
-        <!-- Բաժիններ -->
-        <div id="products-section" class="tab-content">
-            <h2 class="text-2xl font-bold mb-4 text-gray-700">Բոլոր Ապրանքները</h2>
-            <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Ապրանքները կբեռնվեն այստեղ -->
-                <div class="text-center py-10 text-gray-500">Բեռնվում են ապրանքները...</div>
+        </main>
+        
+        <!-- Ոտք (Footer) -->
+        <div class="footer shadow-t-lg p-4 sticky bottom-0 z-10 rounded-t-xl">
+            <div class="flex justify-between items-center">
+                <div id="cart-summary" class="text-lg font-semibold">Զամբյուղը դատարկ է</div>
+                <button id="checkout-button" class="main-button px-6 py-3 rounded-full font-bold shadow-lg opacity-50 cursor-not-allowed" disabled>
+                    Վճարել
+                </button>
             </div>
         </div>
 
-        <div id="request-section" class="tab-content hidden">
-            <h2 class="text-2xl font-bold mb-4 text-gray-700">Պատվեր (Ապրանք, որը չկա)</h2>
-            <div id="request-form-container" class="bg-white p-6 rounded-xl shadow-lg">
-                <p class="text-gray-600 mb-4">
-                    Եթե ապրանքը չկա մեր կատալոգում, ուղարկեք հարցում։ Մենք կփորձենք գտնել այն Ձեզ համար։
-                </p>
-
-                <form id="product-request-form" onsubmit="handleRequestSubmit(event)">
-                    <div class="mb-4">
-                        <label for="request-name" class="block text-sm font-medium text-gray-700 mb-1">Ապրանքի Անուն</label>
-                        <input type="text" id="request-name" name="name" required
-                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150">
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="request-description" class="block text-sm font-medium text-gray-700 mb-1">Մանրամասն Նկարագրություն</label>
-                        <textarea id="request-description" name="description" rows="4" required
-                                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
-                                  placeholder="Նկարագրեք ապրանքը, նշեք գույնը, չափը և այլ մանրամասներ։"></textarea>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Նկար (Տեղեկատվական)</label>
-                        <div class="p-3 border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50">
-                            <p class="text-sm text-gray-500">
-                                Տվյալ միջավայրում նկարներ ուղարկելն անհնար է։ Խնդրում ենք մանրամասն նկարագրել ապրանքը վերևի դաշտում։
-                            </p>
-                        </div>
-                    </div>
-
-                    <button type="submit" id="submit-request-btn"
-                            class="w-full py-3 bg-[#5d3d82] text-white font-semibold rounded-lg shadow-md hover:bg-[#4b3168] transition duration-150 disabled:bg-gray-400">
-                        Ուղարկել Հարցումը
-                    </button>
-                    <p id="request-message" class="text-center mt-3 text-sm font-medium hidden"></p>
-                </form>
-            </div>
-            
-            <div id="user-requests-list" class="mt-8">
-                <h3 class="text-xl font-semibold mb-3 text-gray-700">Ձեր Ուղարկած Հարցումները</h3>
-                <div id="requests-container" class="space-y-3">
-                    <p class="text-gray-500 text-sm">Ձեր հարցումները կցուցադրվեն այստեղ։</p>
-                </div>
+        <!-- Տեղեկատվական Մեսիջի Մոդալ -->
+        <div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full text-center">
+                <p id="modal-text" class="text-gray-800 font-semibold"></p>
+                <button onclick="document.getElementById('message-modal').classList.add('hidden')" class="main-button mt-4 px-4 py-2 rounded-full text-sm">Փակել</button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase և Լոգիկա -->
-    <script type="module">
-        // -----------------------------------------------------------
-        // ԿԱՐԵՎՈՐ: ԴՈՒՔ ՊԵՏՔ Է ԱՅՍ ՕԲՅԵԿՏԸ ՓՈԽԱՐԻՆԵՔ ՁԵՐ ԻՐԱԿԱՆ FIREBASE ԿՈՆՖԻԳՈՎ։
-        // Եթե այս արժեքները չփոխեք, Web App-ը ՉԻ աշխատի GitHub Pages-ում։
-      // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+    <!-- Firebase SDK-ի Ներբեռնում -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    
+    <!-- Telegram WebApp SDK-ի Ներբեռնում -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCXp9sfT5rTtKQX95wQi13ZGhfEbqNeMxQ",
-  authDomain: "wildberries-shop.firebaseapp.com",
-  projectId: "wildberries-shop",
-  storageBucket: "wildberries-shop.firebasestorage.app",
-  messagingSenderId: "461291386921",
-  appId: "1:461291386921:web:970ed17cf9a25893354438",
-  measurementId: "G-EYGVT824J5"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-        // -----------------------------------------------------------
-
-        // Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            setDoc, 
-            onSnapshot, 
-            collection, 
-            query, 
-            addDoc, 
-            serverTimestamp,
-            getDoc, // Ավելացված է seeded check-ի համար
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        setLogLevel('Debug'); // Ակտիվացնում ենք լոգինգը դեբագի համար
+    <script>
+        // Ձեր տրամադրած Firebase-ի Կոնֆիգուրացիան
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXp9sfT5rTtKQX95wQi13ZGhfEbqNeMxQ",
+            authDomain: "wildberries-shop.firebaseapp.com",
+            projectId: "wildberries-shop",
+            storageBucket: "wildberries-shop.firebasestorage.app",
+            messagingSenderId: "461291386921",
+            appId: "1:461291386921:web:970ed17cf9a25893354438",
+            measurementId: "G-EYGVT824J5"
+        };
 
         // Գլոբալ Փոփոխականներ
         let db;
         let auth;
-        let userId = null;
-        let appId = null;
+        let userId = 'anon_user_' + Date.now(); // Լռելյայն ID-ն, մինչև կավտորիզացվի
+        const app_id = firebaseConfig.projectId; // Օգտագործում ենք projectId-ն որպես appId
 
-        const mockProducts = [
-            { name: "Ամառային Զգեստ", price: 12500, description: "Եղեգնագույն, թեթև ամառային զգեստ", image_url: "https://placehold.co/300x200/4c3f7b/ffffff?text=👗+Զգեստ" },
-            { name: "Սպորտային Կոշիկներ", price: 24990, description: "Սև, պրոֆեսիոնալ վազքի կոշիկներ", image_url: "https://placehold.co/300x200/3498db/ffffff?text=👟+Կոշիկ" },
-            { name: "Ժամացույց", price: 8900, description: "Նորաձև, մետաղական թևնոցով ժամացույց", image_url: "https://placehold.co/300x200/e67e22/ffffff?text=⌚+Ժամացույց" },
-            { name: "Դիմահարդարման Հավաքածու", price: 15000, description: "Ամբողջական հավաքածու դիմահարդարման համար", image_url: "https://placehold.co/300x200/e74c3c/ffffff?text=💄+Make-up" }
-        ];
+        // Զամբյուղի Գլոբալ Պետություն (State)
+        let cart = {}; // {productId: {name: '...', price: ..., quantity: 2}}
 
-        // ----------------- 1. FIREBASE ՍԵԹԱՓ -----------------
+        // Telegram WebApp-ի Ինիցիալիզացիա
+        const tg = window.Telegram.WebApp;
+        tg.ready();
 
-        function initializeFirebase() {
+        // Կոճակների և Տարածքների Հղումներ
+        const productsContainer = document.getElementById('products-container');
+        const cartSummary = document.getElementById('cart-summary');
+        const checkoutButton = document.getElementById('checkout-button');
+        const loadingSkeleton = document.getElementById('loading-skeleton');
+        const userInfoDisplay = document.getElementById('user-info');
+        
+        // ----------------------------------------------------
+        // ՄՈԴԱԼ ՖՈՒՆԿՑԻԱ
+        // ----------------------------------------------------
+        function showMessage(text) {
+            document.getElementById('modal-text').textContent = text;
+            document.getElementById('message-modal').classList.remove('hidden');
+        }
+
+        // ----------------------------------------------------
+        // 1. FIREBASE ԻՆԻՑԻԱԼԻԶԱՑԻԱ
+        // ----------------------------------------------------
+        async function initializeFirebase() {
             try {
-                let firebaseConfig;
-                let initialAuthToken = null;
-                
-                // Ստուգում ենք՝ արդյոք գտնվում ենք Canvas միջավայրում (ոչ GitHub Pages)
-                if (typeof __firebase_config !== 'undefined' && typeof __app_id !== 'undefined') {
-                    // Canvas միջավայր
-                    firebaseConfig = JSON.parse(__firebase_config);
-                    appId = __app_id;
-                    initialAuthToken = __initial_auth_token;
-                    console.log("Using Canvas environment config.");
-                } else {
-                    // Արտաքին հոսթինգ (GitHub Pages/Telegram Web App)
-                    // Օգտագործում ենք EXTERNAL_FIREBASE_CONFIG-ը
-                    if (EXTERNAL_FIREBASE_CONFIG.projectId && EXTERNAL_FIREBASE_CONFIG.projectId !== "your-project-id") {
-                        firebaseConfig = EXTERNAL_FIREBASE_CONFIG;
-                        // Օգտագործում ենք projectId-ն որպես appId, որպեսզի համապատասխանի Firestore կառուցվածքին
-                        appId = firebaseConfig.projectId; 
-                        console.log("Using external Firebase config.");
-                    } else {
-                         // Եթե Կոնֆիգուրացիան ցուցադրական է
-                        document.getElementById('auth-status').textContent = "⚠️ ՓՈԽԱՐԻՆԵԼ Firebase Կոնֆիգը։";
-                        throw new Error("Missing real external Firebase configuration.");
-                    }
-                }
-                
-                if (Object.keys(firebaseConfig).length === 0 || !firebaseConfig.projectId) {
-                    throw new Error("Firebase config object is empty or invalid.");
-                }
+                // Ինիցիալիզացիա
+                const app = firebase.initializeApp(firebaseConfig);
+                db = app.firestore();
+                auth = app.auth();
 
-
-                // 2. Ինիցիալիզացիա
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // 3. Ավտորիզացիա
-                onAuthStateChanged(auth, async (user) => {
+                // Օգտագործում ենք `onAuthStateChanged`-ը՝ օգտատիրոջ ID-ն ճշգրտելու համար:
+                auth.onAuthStateChanged(user => {
                     if (user) {
                         userId = user.uid;
-                        document.getElementById('auth-status').textContent = `✅ Միացած է`;
-                        document.getElementById('user-id-display').textContent = `ID: ${userId}`;
-                        console.log("User authenticated:", userId);
-                        
-                        // Սկսում ենք տվյալների բեռնումը
-                        startDataListeners();
-                        await seedMockProducts();
-
+                        console.log("Firebase Auth Ready. User ID:", userId);
                     } else {
-                        // Եթե օգտատերը գրանցված չէ, փորձում ենք մուտք գործել
-                        try {
-                            // Այս դեպքում initialAuthToken-ը GitHub-ում չի լինի, այնպես որ անանուն մուտք կլինի
-                            console.log("Signing in anonymously...");
-                            await signInAnonymously(auth);
-                            
-                        } catch (error) {
-                            console.error("Authentication failed:", error);
-                            document.getElementById('auth-status').textContent = "❌ Ավտորիզացիայի սխալ։";
-                            // Իրական ID-ի փոխարեն գեներացնում ենք անանուն ID
-                            userId = crypto.randomUUID(); 
-                            document.getElementById('user-id-display').textContent = `Անանուն ID: ${userId}`;
-                            startDataListeners(); 
-                        }
+                        // Անանուն մուտք
+                        auth.signInAnonymously().then(cred => {
+                            userId = cred.user.uid;
+                            console.log("Signed in anonymously. User ID:", userId);
+                        }).catch(error => {
+                            console.error("Anonymous Sign In Error:", error);
+                            showMessage("Հնարավոր չէ մուտք գործել։ Խնդրում ենք փորձել նորից։");
+                        });
                     }
                 });
 
+                // Ստուգում ենք Telegram-ի տվյալները և ցուցադրում
+                const tgUser = tg.initDataUnsafe.user;
+                if (tgUser) {
+                    const userName = tgUser.first_name || "Անանուն";
+                    userInfoDisplay.textContent = `Բարև, ${userName}`;
+                    // Եթե Telegram-ի ID-ն առկա է, փորձում ենք օգտագործել այն
+                    // Բայց Firebase Auth-ը ավելի անվտանգ է տվյալների բազայի համար
+                }
+                
+                // Բեռնում ենք ապրանքները Firebase-ից
+                await fetchProducts();
+
             } catch (error) {
-                console.error("Error during Firebase initialization:", error);
-                document.getElementById('auth-status').textContent = `❌ Ծրագրի ինիցիալիզացիայի սխալ։ (${error.message.substring(0, 50)}...)`;
+                console.error("Firebase Initialization Error:", error);
+                showMessage(`Firebase-ի ինիցիալիզացիայի սխալ։ Կոդը: ${error.code}`);
             }
         }
 
-        // ----------------- 2. ՏՎՅԱԼՆԵՐԻ ՄՈԴԵԼԻ ՖՈՒՆԿՑԻԱՆԵՐ -----------------
+        // ----------------------------------------------------
+        // 2. ԶԱՄԲՅՈՒՂԻ ԿԱՌԱՎԱՐՈՒՄ
+        // ----------------------------------------------------
 
-        /** Ստանում է հղումը դեպի ՀԱՐՑՈՒՄՆԵՐԻ (ՄԱՍՆԱՎՈՐ) հավաքածուն */
-        function getRequestsCollectionRef() {
-            if (!db || !userId || !appId) return null;
-            return collection(db, `artifacts/${appId}/users/${userId}/requests`);
+        function updateCart(productId, name, price, change) {
+            if (!cart[productId]) {
+                cart[productId] = { name, price, quantity: 0 };
+            }
+
+            cart[productId].quantity += change;
+
+            if (cart[productId].quantity <= 0) {
+                delete cart[productId];
+            }
+            
+            // Թարմացնում ենք UI-ը
+            renderCartSummary();
+            renderProductQuantities();
         }
 
-        /** Ստանում է հղումը դեպի ԱՊՐԱՆՔՆԵՐԻ (ՀԱՆՐԱՅԻՆ) հավաքածուն */
-        function getProductsCollectionRef() {
-            if (!db || !appId) return null;
-            return collection(db, `artifacts/${appId}/public/data/products`);
+        function renderCartSummary() {
+            let totalItems = 0;
+            let totalPrice = 0;
+
+            for (const id in cart) {
+                totalItems += cart[id].quantity;
+                totalPrice += cart[id].quantity * cart[id].price;
+            }
+
+            if (totalItems > 0) {
+                cartSummary.innerHTML = `Զամբյուղ: <b>${totalItems}</b> ապրանք, <b>${totalPrice.toFixed(0)} ԴՐ</b>`;
+                checkoutButton.disabled = false;
+                checkoutButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                // Ցուցադրում ենք Telegram-ի հիմնական կոճակը
+                tg.MainButton.setText(`ՎՃԱՐԵԼ ${totalPrice.toFixed(0)} ԴՐ`).show();
+                
+            } else {
+                cartSummary.textContent = "Զամբյուղը դատարկ է";
+                checkoutButton.disabled = true;
+                checkoutButton.classList.add('opacity-50', 'cursor-not-allowed');
+                tg.MainButton.hide();
+            }
         }
         
-        // Մոք ապրանքների սկզբնական ավելացում (միայն մեկ անգամ)
-        async function seedMockProducts() {
-            if (!db || !appId || !userId) return; // Պետք է ստուգել db-ի առկայությունը
-            const productsRef = getProductsCollectionRef();
-            if (!productsRef) return;
+        function renderProductQuantities() {
+            // Այս ֆունկցիան պետք է թարմացնի յուրաքանչյուր ապրանքի քանակը UI-ում
+            for (const id in cart) {
+                const qtyElement = document.getElementById(`qty-${id}`);
+                if (qtyElement) {
+                    qtyElement.textContent = cart[id].quantity;
+                }
+            }
+        }
 
-            // Ստուգում ենք, թե արդյոք mock տվյալներն արդեն ավելացվել են
-            const seededCheckDoc = doc(db, `artifacts/${appId}/public/data/metadata/seeded`);
+        // ----------------------------------------------------
+        // 3. ՏՎՅԱԼՆԵՐԻ ԲԵՌՆՈՒՄ ԵՎ ՑՈՒՑԱԴՐՈՒՄ
+        // ----------------------------------------------------
+
+        async function fetchProducts() {
+            // Կարդում ենք ապրանքները Firestore-ի հանրային հավաքածուից
+            const path = `artifacts/${app_id}/public/data/products`;
             try {
-                const checkSnapshot = await getDoc(seededCheckDoc);
-                if (checkSnapshot.exists()) {
-                    console.log("Mock products already seeded.");
+                // Թաքցնում ենք սկելետոնը բեռնումից առաջ
+                loadingSkeleton.classList.remove('hidden');
+                
+                const productsRef = db.collection(path);
+                const snapshot = await productsRef.get();
+                
+                // Մաքրում ենք կոնտեյները նախքան նոր ապրանքներ ավելացնելը
+                productsContainer.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    productsContainer.innerHTML = `
+                        <div class="col-span-full text-center py-12 text-gray-500">
+                            Ապրանքներ չկան։ Խնդրում ենք ավելացնել մոք տվյալներ Firestore-ում։
+                            <button id="seed-data" class="main-button mt-4 px-4 py-2 rounded-full text-sm">Ավելացնել Օրինակելի Ապրանքներ</button>
+                        </div>
+                    `;
+                    document.getElementById('seed-data').addEventListener('click', seedData);
                     return;
                 }
-
-                console.log("Seeding mock products...");
-                for (const product of mockProducts) {
-                    // Օգտագործում ենք անունը որպես ID
-                    const docRef = doc(productsRef, product.name.replace(/\s/g, '_').replace(/[^a-zA-Z0-9_]/g, ''));
-                    await setDoc(docRef, product);
-                }
-                // Նշում ենք, որ ապրանքները ստեղծվել են
-                await setDoc(seededCheckDoc, { timestamp: serverTimestamp(), seededBy: userId });
+                
+                snapshot.forEach(doc => {
+                    const product = doc.data();
+                    product.id = doc.id;
+                    renderProductCard(product);
+                });
+                
             } catch (error) {
-                console.warn("Could not check/set seeded status. Mock data seeding attempted (or skipped).", error);
+                console.error("Error fetching products:", error);
+                productsContainer.innerHTML = `<div class="col-span-full text-center py-12 text-red-500">Սխալ՝ ապրանքները բեռնելիս: ${error.message}</div>`;
+            } finally {
+                loadingSkeleton.classList.add('hidden');
             }
         }
+        
+        function renderProductCard(product) {
+            const currentQty = cart[product.id] ? cart[product.id].quantity : 0;
+            
+            const card = document.createElement('div');
+            card.className = "product-card shadow-lg p-3 rounded-xl flex flex-col justify-between border border-gray-200";
+            card.innerHTML = `
+                <img src="${product.imageUrl || 'https://placehold.co/400x300/e0f2fe/0369a1?text=WB'}" 
+                     onerror="this.onerror=null; this.src='https://placehold.co/400x300/e0f2fe/0369a1?text=WB';"
+                     alt="${product.name}" class="w-full h-28 object-cover rounded-lg mb-2">
+                <h3 class="font-bold text-base mb-1 truncate">${product.name}</h3>
+                <p class="text-xs text-gray-500 mb-2">${product.description || 'Հիանալի ապրանք'}</p>
+                <div class="font-extrabold text-lg text-blue-600 mb-3">${product.price.toFixed(0)} ԴՐ</div>
 
-
-        // ----------------- 3. ՌԵԱԼ-ԹԱՅՄ ԼԻՍԹԵՆԵՐՆԵՐ (onSnapshot) -----------------
-
-        function startDataListeners() {
-            if (!db || !userId) return;
-
-            // Լիսթեներ ԱՊՐԱՆՔՆԵՐԻ համար
-            const productsRef = getProductsCollectionRef();
-            if (productsRef) {
-                onSnapshot(productsRef, (snapshot) => {
-                    const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderProducts(products);
-                }, (error) => {
-                    console.error("Error fetching products:", error);
-                    document.getElementById('product-list').innerHTML = `<p class="text-center text-red-500 col-span-full">❌ Ապրանքների բեռնման սխալ։</p>`;
-                });
-            }
-
-            // Լիսթեներ ՕԳՏԱՏԵՐԵՐԻ ՀԱՐՑՈՒՄՆԵՐԻ համար
-            const requestsRef = getRequestsCollectionRef();
-            if (requestsRef) {
-                // Քվերին՝ հարցումները ստեղծման ամսաթվով ցուցադրելու համար (առանց orderBy())
-                onSnapshot(requestsRef, (snapshot) => {
-                    const requests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderUserRequests(requests);
-                }, (error) => {
-                    console.error("Error fetching user requests:", error);
-                    document.getElementById('requests-container').innerHTML = `<p class="text-red-500 text-sm">❌ Հարցումների բեռնման սխալ։</p>`;
-                });
-            }
-        }
-
-        // ----------------- 4. ՌԵՆԴԵՐԻՆԳԻ ՖՈՒՆԿՑԻԱՆԵՐ -----------------
-
-        /** Ցուցադրում է բոլոր ապրանքները UI-ում */
-        function renderProducts(products) {
-            const container = document.getElementById('product-list');
-            if (products.length === 0) {
-                container.innerHTML = `<p class="text-center text-gray-500 col-span-full">Ապրանքներ դեռ չկան։</p>`;
-                return;
-            }
-
-            container.innerHTML = products.map(product => `
-                <div class="product-card bg-white p-4 rounded-xl shadow-md border border-gray-100">
-                    <img src="${product.image_url}" alt="${product.name}" onerror="this.onerror=null;this.src='https://placehold.co/300x200/cccccc/333333?text=Նկարը+Բացակայում+է';" class="w-full h-32 object-cover rounded-lg mb-3">
-                    <h3 class="font-bold text-lg mb-1">${product.name}</h3>
-                    <p class="text-sm text-gray-600 mb-2">${product.description}</p>
-                    <p class="text-xl font-extrabold text-[#5d3d82]">${(product.price || 0).toLocaleString('hy-AM')} ֏</p>
-                    <button onclick="showCartMessage('${product.name}')" class="mt-3 w-full py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-150 text-sm">
-                        Ավելացնել Զամբյուղ
+                <div class="flex justify-between items-center bg-gray-100 p-2 rounded-full">
+                    <button class="text-red-500 p-1 rounded-full hover:bg-red-100 transition" 
+                            data-product-id="${product.id}" 
+                            data-product-name="${product.name}" 
+                            data-product-price="${product.price}" 
+                            data-action="remove">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>
+                    </button>
+                    <span id="qty-${product.id}" class="font-bold text-lg w-6 text-center">${currentQty}</span>
+                    <button class="text-green-500 p-1 rounded-full hover:bg-green-100 transition" 
+                            data-product-id="${product.id}" 
+                            data-product-name="${product.name}" 
+                            data-product-price="${product.price}" 
+                            data-action="add">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                     </button>
                 </div>
-            `).join('');
-        }
-        
-        // Փոխարինում ենք alert-ը console.log-ով
-        window.showCartMessage = function(productName) {
-            console.log(`Ապրանքը զամբյուղում է։ ${productName}`);
-            // Ժամանակավոր լուծում՝ ցուցադրական նպատակներով (իրական ծրագրում օգտագործել մոդալ)
-            alert(`${productName}-ն ավելացվել է զամբյուղ (Mock)`); 
-        }
-
-        /** Ցուցադրում է օգտատիրոջ ուղարկած հարցումները */
-        function renderUserRequests(requests) {
-            const container = document.getElementById('requests-container');
-            // Սորտավորում ենք JavaScript-ով, քանի որ Firestore-ի orderBy-ն կարող է խնդիրներ առաջացնել
-            const sortedRequests = requests.sort((a, b) => {
-                const timeA = a.timestamp ? (a.timestamp.toDate ? a.timestamp.toDate().getTime() : new Date(a.timestamp).getTime()) : 0;
-                const timeB = b.timestamp ? (b.timestamp.toDate ? b.timestamp.toDate().getTime() : new Date(b.timestamp).getTime()) : 0;
-                return timeB - timeA; // Վերջինը սկզբում
-            });
+            `;
+            productsContainer.appendChild(card);
             
-            if (sortedRequests.length === 0) {
-                container.innerHTML = `<p class="text-gray-500 text-sm">Դուք դեռ հարցումներ չեք ուղարկել։</p>`;
-                return;
-            }
+            // Ավելացնում ենք event listener-ներ կոճակներին
+            card.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const { productId, productName, productPrice, action } = e.currentTarget.dataset;
+                    const priceNum = parseFloat(productPrice);
 
-            container.innerHTML = sortedRequests.map(request => {
-                // Փորձում ենք ճիշտ ստանալ ամսաթիվը
-                const date = request.timestamp 
-                    ? new Date(request.timestamp.toDate ? request.timestamp.toDate() : request.timestamp).toLocaleDateString('hy-AM') 
-                    : 'Անհայտ ամսաթիվ';
-                return `
-                    <div class="bg-gray-100 p-4 rounded-lg border border-gray-200">
-                        <p class="font-semibold text-base">${request.name} (Հարցում)</p>
-                        <p class="text-sm text-gray-700 mt-1">${request.description}</p>
-                        <p class="text-xs text-gray-400 mt-2">Ուղարկվել է: ${date}</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-
-        // ----------------- 5. ԻՆՏԵՐԱԿՏԻՎ ՖՈՒՆԿՑԻԱՆԵՐ -----------------
-
-        /** Կառավարում է բաժինների փոփոխությունը (Tabs) */
-        function setupTabSwitching() {
-            const tabs = document.querySelectorAll('.tab-button');
-            const sections = {
-                products: document.getElementById('products-section'),
-                request: document.getElementById('request-section')
-            };
-
-            tabs.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetTab = button.getAttribute('data-tab');
-
-                    // Թարմացնում ենք կոճակների ակտիվ վիճակը
-                    tabs.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-
-                    // Ցուցադրում ենք ճիշտ բաժինը
-                    Object.values(sections).forEach(section => section.classList.add('hidden'));
-                    sections[targetTab].classList.remove('hidden');
+                    if (action === 'add') {
+                        updateCart(productId, productName, priceNum, 1);
+                    } else if (action === 'remove') {
+                        updateCart(productId, productName, priceNum, -1);
+                    }
                 });
             });
         }
         
-        // Գլոբալ ֆունկցիա՝ հարցման ուղարկման համար
-        window.handleRequestSubmit = async function(event) {
-            event.preventDefault();
-            const form = document.getElementById('product-request-form');
-            const btn = document.getElementById('submit-request-btn');
-            const messageEl = document.getElementById('request-message');
+        // ----------------------------------------------------
+        // 4. ՄՈՔ ՏՎՅԱԼՆԵՐԻ ԱՎԵԼԱՑՈՒՄ (SEED DATA)
+        // ----------------------------------------------------
+        
+        async function seedData() {
+            const mockProducts = [
+                { name: "Ամառային Զգեստ", price: 9500, description: "Թեթև, բամբակյա զգեստ։", imageUrl: "https://placehold.co/400x300/a3e635/166534?text=Dress" },
+                { name: "Սպորտային Կոշիկներ", price: 18000, description: "Հարմարավետ վազքի համար։", imageUrl: "https://placehold.co/400x300/4ade80/065f46?text=Shoes" },
+                { name: "Անջրանցիկ Ժամացույց", price: 12500, description: "Երկարակյաց, սպորտային մոդել։", imageUrl: "https://placehold.co/400x300/34d399/047857?text=Watch" },
+                { name: "Բաճկոն", price: 29990, description: "Տաք, ձմեռային բաճկոն։", imageUrl: "https://placehold.co/400x300/6ee7b7/059669?text=Jacket" }
+            ];
             
-            messageEl.classList.add('hidden');
-            btn.disabled = true;
-            btn.textContent = '⏳ Ուղարկվում է...';
-
-            if (!db || !userId) {
-                messageEl.textContent = '❌ Խնդրում ենք սպասել, մինչև համակարգը կմիանա կամ ստուգել կոնֆիգուրացիան։';
-                messageEl.classList.remove('hidden', 'text-green-500', 'text-red-500');
-                messageEl.classList.add('text-red-500');
-                btn.disabled = false;
-                btn.textContent = 'Ուղարկել Հարցումը';
-                return;
-            }
-
-            const name = document.getElementById('request-name').value.trim();
-            const description = document.getElementById('request-description').value.trim();
+            const path = `artifacts/${app_id}/public/data/products`;
+            const batch = db.batch();
             
             try {
-                const requestsRef = getRequestsCollectionRef();
-                if (!requestsRef) throw new Error("Requests collection reference is invalid.");
+                // Նախ՝ ջնջում ենք հին ապրանքները
+                const snapshot = await db.collection(path).get();
+                snapshot.docs.forEach(doc => batch.delete(doc.ref));
 
-                await addDoc(requestsRef, {
-                    name: name,
-                    description: description,
-                    status: 'Սպասում է',
-                    userId: userId,
-                    timestamp: serverTimestamp()
+                // Ավելացնում ենք նորերը
+                mockProducts.forEach((product, index) => {
+                    const docRef = db.collection(path).doc(`prod_${index + 1}`);
+                    batch.set(docRef, product);
                 });
-
-                messageEl.textContent = '✅ Ձեր հարցումը հաջողությամբ ուղարկվել է։';
-                messageEl.classList.remove('hidden', 'text-red-500');
-                messageEl.classList.add('text-green-500');
-                form.reset(); // Մաքրում ենք ֆորման
-
+                
+                await batch.commit();
+                showMessage("Օրինակելի ապրանքներն ավելացվեցին։ Խնդրում ենք թարմացնել էջը։");
+                fetchProducts(); // Թարմացնում ենք ապրանքների ցուցակը
+                
             } catch (error) {
-                console.error("Failed to submit request:", error);
-                messageEl.textContent = `❌ Սխալ տեղի ունեցավ: ${error.message}`;
-                messageEl.classList.remove('hidden', 'text-green-500');
-                messageEl.classList.add('text-red-500');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Ուղարկել Հարցումը';
+                console.error("Error seeding data:", error);
+                showMessage(`Սխալ՝ տվյալներն ավելացնելիս: ${error.message}`);
             }
         }
 
 
-        // ----------------- 6. ԾՐԱԳՐԻ ՄԻՋՈՑԱՌՈՒՄԸ -----------------
+        // ----------------------------------------------------
+        // 5. ՎՃԱՐՄԱՆ ԳՈՐԾԸՆԹԱՑԻ ՄԵԿՆԱՐԿ
+        // ----------------------------------------------------
         
-        window.onload = function() {
-            setupTabSwitching();
-            initializeFirebase();
-        };
+        function startCheckout() {
+            // Պատրաստում ենք զամբյուղի տվյալները, որոնք կուղարկվեն բոտին
+            const cartArray = Object.keys(cart).map(id => ({
+                id: id,
+                name: cart[id].name,
+                price: cart[id].price,
+                quantity: cart[id].quantity
+            }));
 
+            // Փոխարկում ենք JSON տողի
+            const cartJson = JSON.stringify(cartArray);
+            
+            // Ուղարկում ենք տվյալները Telegram Բոտին՝ վճարումը սկսելու համար:
+            // Բոտի backend-ը (main.py) կստանա այս տվյալները որպես web_app_data
+            tg.sendData(cartJson);
+            
+            // Ժամանակավորապես ցուցադրում ենք հաղորդագրություն
+            showMessage("Պատվերի տվյալները ուղարկվել են Բոտին։ Խնդրում ենք հետևել Բոտի չաթին։");
+        }
+
+        // Կցում ենք event listener-ները
+        checkoutButton.addEventListener('click', startCheckout);
+        tg.MainButton.onClick(startCheckout);
+
+
+        // Գործարկում ենք ինիցիալիզացիան, երբ էջը բեռնված է
+        window.onload = initializeFirebase;
     </script>
 </body>
 </html>
