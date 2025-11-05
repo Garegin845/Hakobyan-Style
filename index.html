@@ -7,33 +7,61 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <style>
+        /* Wildberries-ին մոտ գույներ */
+        :root {
+            --wb-purple: #9b28a4; 
+            --wb-light-purple: #c586c5;
+            --dark-bg: #111827; /* Ավելի մուգ գույն */
+            --dark-secondary-bg: #1f2937; /* Մուգ մոխրագույն */
+            --text-color: #f3f4f6; /* Բաց մոխրագույն տեքստ */
+            --muted-text: #9ca3af; /* Խուլ տեքստ */
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--tg-theme-bg-color, #f4f4f4); /* Telegram ֆոնի գույն */
-            color: var(--tg-theme-text-color, #333);
+            background-color: var(--tg-theme-bg-color, var(--dark-bg)); 
+            color: var(--tg-theme-text-color, var(--text-color));
             transition: background-color 0.3s, color 0.3s;
         }
         .header {
-            background-color: var(--tg-theme-secondary-bg-color, #ffffff); /* Երկրորդական ֆոնի գույն */
+            background-color: var(--tg-theme-secondary-bg-color, var(--dark-secondary-bg));
+            border-bottom: 3px solid var(--wb-purple); 
         }
         .main-button {
-            background-color: var(--tg-theme-button-color, #007bff);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            transition: background-color 0.2s;
+            background-color: var(--tg-theme-button-color, var(--wb-purple));
+            color: var(--tg-theme-button-text-color, var(--text-color));
+            transition: background-color 0.2s, opacity 0.2s;
+            text-transform: uppercase;
         }
-        .main-button:active {
-            filter: brightness(0.9);
+        .main-button:hover {
+            background-color: #8b2593;
         }
         .product-card {
-            background-color: var(--tg-theme-secondary-bg-color, #ffffff); 
-            border-color: var(--tg-theme-secondary-bg-color, #e5e7eb);
+            background-color: var(--tg-theme-secondary-bg-color, var(--dark-secondary-bg));
+            border: 1px solid #374151; 
         }
         .skeleton {
             animation: pulse 1.5s infinite;
         }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.4; }
+        }
+        .product-price {
+            color: var(--wb-light-purple); 
+        }
+        #image-modal button {
+             color: white;
+             text-shadow: 0 0 5px black;
+        }
+        .request-section {
+            background-color: #1f2937;
+            border-top: 1px solid #374151;
+        }
+        .request-section input {
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            color: #f3f4f6;
         }
     </style>
 </head>
@@ -41,33 +69,48 @@
     
     <div id="app" class="min-h-screen flex flex-col">
         
-        <div class="header shadow-md p-4 sticky top-0 z-10 flex justify-between items-center rounded-b-xl">
-            <h1 class="text-xl font-bold">Wildberries Ցուցափեղկ 🛍️</h1>
-            <div id="user-info" class="text-sm"></div>
+        <div class="header shadow-lg p-4 sticky top-0 z-10 flex justify-between items-center rounded-b-xl">
+            <h1 class="text-xl font-bold">Wildberries Ցուցափեղկ <span class="text-xl" style="color: var(--wb-purple);">💜</span></h1>
+            <div id="user-info" class="text-sm text-gray-400"></div>
         </div>
 
         <main class="flex-grow p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="products-container">
             
             <div id="loading-skeleton" class="col-span-2 md:col-span-3 lg:col-span-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <div class="product-card bg-gray-200 shadow-lg p-3 rounded-xl skeleton h-64"></div>
-                <div class="product-card bg-gray-200 shadow-lg p-3 rounded-xl skeleton h-64"></div>
-                <div class="product-card bg-gray-200 shadow-lg p-3 rounded-xl skeleton h-64"></div>
-                <div class="product-card bg-gray-200 shadow-lg p-3 rounded-xl skeleton h-64 hidden md:block"></div>
+                <div class="product-card shadow-lg p-3 rounded-xl skeleton h-64 bg-gray-700"></div>
+                <div class="product-card shadow-lg p-3 rounded-xl skeleton h-64 bg-gray-700"></div>
+                <div class="product-card shadow-lg p-3 rounded-xl skeleton h-64 bg-gray-700"></div>
+                <div class="product-card shadow-lg p-3 rounded-xl skeleton h-64 hidden md:block bg-gray-700"></div>
             </div>
 
         </main>
         
-        <div class="p-4 bg-yellow-50 shadow-inner mt-4 rounded-xl border border-yellow-200">
-            <h3 class="text-lg font-bold mb-3 text-yellow-800">🤔 Չե՞ք գտնում Ձեր ուզած ապրանքը</h3>
-            <p class="text-sm text-gray-600 mb-3">Ուղարկեք մեզ ապրանքի անունը, **արտիկուլը** և/կամ հղումը։</p>
+        <div class="p-4 request-section shadow-inner mt-4 rounded-t-xl">
+            <h3 class="text-lg font-bold mb-3 text-white">🤔 Չե՞ք գտնում Ձեր ուզած ապրանքը</h3>
+            <p class="text-sm text-gray-400 mb-3">Ուղարկեք մեզ ապրանքի անունը, **արտիկուլը** կամ հղումը։</p>
             
-            <input type="text" id="request-name" placeholder="Ապրանքի անուն/նկարագրություն" class="w-full p-2 border border-gray-300 rounded-lg mb-2 text-gray-800">
-            <input type="text" id="request-article" placeholder="Արտիկուլ (Wildberries ID, ըստ ցանկության)" class="w-full p-2 border border-gray-300 rounded-lg mb-2 text-gray-800">
-            <input type="url" id="request-link" placeholder="Հղում (Link, ըստ ցանկության)" class="w-full p-2 border border-gray-300 rounded-lg mb-4 text-gray-800">
+            <input type="text" id="request-name" placeholder="Ապրանքի անուն/նկարագրություն" class="w-full p-2 rounded-lg mb-2 text-white placeholder-gray-400">
+            <input type="text" id="request-article" placeholder="Արտիկուլ (Wildberries ID, ըստ ցանկության)" class="w-full p-2 rounded-lg mb-2 text-white placeholder-gray-400">
+            <input type="url" id="request-link" placeholder="Հղում (Link, ըստ ցանկության)" class="w-full p-2 rounded-lg mb-4 text-white placeholder-gray-400">
             
-            <button id="send-request-button" class="main-button w-full px-4 py-2 rounded-full font-semibold shadow-md">
+            <button id="send-request-button" class="main-button w-full px-4 py-3 rounded-full font-semibold shadow-md text-base">
                 Ուղարկել Հայտը 🚀
             </button>
+        </div>
+
+        <div id="image-modal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
+            <div class="relative max-w-xl w-full">
+                <button onclick="document.getElementById('image-modal').classList.add('hidden')" 
+                        class="absolute -top-8 right-0 text-white text-3xl font-bold p-2 leading-none">
+                    &times;
+                </button>
+                
+                <div id="image-gallery-content" class="bg-white p-4 rounded-xl shadow-2xl">
+                    <h3 id="gallery-product-name" class="text-lg font-bold mb-3 text-gray-800 border-b pb-2"></h3>
+                    <div id="product-images-container" class="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-96 overflow-y-auto">
+                        </div>
+                </div>
+            </div>
         </div>
         
         <div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -81,7 +124,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <script>
@@ -96,25 +138,19 @@
             measurementId: "G-EYGVT824J5"
         };
 
-        // Գլոբալ Փոփոխականներ
         let db;
         let auth;
         let userId = 'anon_user_' + Date.now(); 
         const app_id = firebaseConfig.projectId; 
 
-        // Telegram WebApp-ի Ինիցիալիզացիա
         const tg = window.Telegram.WebApp;
         tg.ready();
-        tg.MainButton.hide(); // Համոզվում ենք, որ Telegram-ի հիմնական կոճակը թաքնված է
+        tg.MainButton.hide();
 
-        // Կոճակների և Տարածքների Հղումներ
         const productsContainer = document.getElementById('products-container');
         const loadingSkeleton = document.getElementById('loading-skeleton');
         const userInfoDisplay = document.getElementById('user-info');
         
-        // ----------------------------------------------------
-        // ՄՈԴԱԼ ՖՈՒՆԿՑԻԱ
-        // ----------------------------------------------------
         function showMessage(text) {
             document.getElementById('modal-text').textContent = text;
             document.getElementById('message-modal').classList.remove('hidden');
@@ -125,17 +161,14 @@
         // ----------------------------------------------------
         async function initializeFirebase() {
             try {
-                // Ինիցիալիզացիա
                 const app = firebase.initializeApp(firebaseConfig);
                 db = app.firestore();
                 auth = app.auth();
 
-                // Օգտագործում ենք `onAuthStateChanged`-ը՝ օգտատիրոջ ID-ն ճշգրտելու համար:
                 auth.onAuthStateChanged(user => {
                     if (user) {
                         userId = user.uid;
                     } else {
-                        // Անանուն մուտք
                         auth.signInAnonymously().then(cred => {
                             userId = cred.user.uid;
                         }).catch(error => {
@@ -145,14 +178,12 @@
                     }
                 });
 
-                // Ստուգում ենք Telegram-ի տվյալները և ցուցադրում
                 const tgUser = tg.initDataUnsafe.user;
                 if (tgUser) {
                     const userName = tgUser.first_name || "Անանուն";
                     userInfoDisplay.textContent = `Բարև, ${userName}`;
                 }
                 
-                // Բեռնում ենք ապրանքները Firebase-ից
                 await fetchProducts();
 
             } catch (error) {
@@ -200,18 +231,24 @@
             }
         }
         
+        // 🖼️ renderProductCard ՖՈՒՆԿՑԻԱ
         function renderProductCard(product) {
             
             const card = document.createElement('div');
-            card.className = "product-card shadow-lg p-3 rounded-xl flex flex-col justify-between border border-gray-200";
+            card.className = "product-card shadow-lg p-3 rounded-xl flex flex-col justify-between border-gray-700 hover:shadow-xl";
+            
+            const mainImageUrl = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : product.imageUrl;
+            
             card.innerHTML = `
-                <img src="${product.imageUrl || 'https://placehold.co/400x300/e0f2fe/0369a1?text=WB'}" 
+                <img src="${mainImageUrl || 'https://placehold.co/400x300/e0f2fe/0369a1?text=WB'}" 
                     onerror="this.onerror=null; this.src='https://placehold.co/400x300/e0f2fe/0369a1?text=WB';"
-                    alt="${product.name}" class="w-full h-28 object-cover rounded-lg mb-2">
-                <h3 class="font-bold text-base mb-1 truncate">${product.name}</h3>
-                <p class="text-xs text-gray-500 mb-2">${product.description || 'Հիանալի ապրանք'}</p>
-                <div class="text-xs text-gray-400 mb-1">Արտիկուլ: <b>${product.article || 'N/A'}</b></div>
-                <div class="font-extrabold text-lg text-blue-600 mb-3">${(product.price || 0).toFixed(0)} ԴՐ</div>
+                    alt="${product.name}" 
+                    class="w-full h-28 object-cover rounded-lg mb-2 cursor-pointer hover:opacity-80 transition-opacity"
+                    data-action="open-gallery"> 
+                <h3 class="font-bold text-base mb-1 truncate text-white">${product.name}</h3>
+                <p class="text-xs text-muted-text mb-2">${product.description || 'Հիանալի ապրանք'}</p>
+                <div class="text-xs text-gray-500 mb-1">Արտիկուլ: <b class="text-gray-400">${product.article || 'N/A'}</b></div>
+                <div class="font-extrabold text-lg product-price mb-3">${(product.price || 0).toFixed(0)} ԴՐ</div>
 
                 <button class="main-button w-full px-3 py-2 rounded-full font-semibold shadow-md text-sm"
                             data-product-id="${product.id}" 
@@ -223,37 +260,87 @@
             `;
             productsContainer.appendChild(card);
             
-            // Կցում ենք event listener-ներ կոճակներին
-            card.querySelector('button').addEventListener('click', (e) => {
+            card.querySelector('img[data-action="open-gallery"]').addEventListener('click', () => {
+                openImageGallery(product); 
+            });
+
+            // 🚀 ԱՅՍՏԵՂ ՓՈՓՈԽՎԱԾ ԿՈԴԸ՝ INLINE ՀԱՅՏԻ ՀԱՄԱՐ
+            card.querySelector('button[data-action="request"]').addEventListener('click', (e) => {
                 const { productName, productArticle } = e.currentTarget.dataset;
                 
-                // Ցույց ենք տալիս մոդալը, որը կմոդելավորի հայտի ուղարկումը (կամ կարող է բացել նոր մոդալ)
-                // Այս պահին պարզապես ցույց ենք տալիս հաղորդագրություն
+                // Ուղարկում է տվյալները Telegram բոտին
+                const notificationText = `PRODUCT_REQUEST_INLINE: ${productName} (Արտիկուլ: ${productArticle}) | User ID: ${tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 'N/A'}`;
+                tg.sendData(notificationText);
+                
                 showMessage(`Հայտ ${productName} (Արտիկուլ: ${productArticle})-ի համար ուղարկված է։ Մենք կկապվենք Ձեզ հետ։`);
             });
         }
         
         // ----------------------------------------------------
-        // 3. ՄՈՔ ՏՎՅԱԼՆԵՐԻ ԱՎԵԼԱՑՈՒՄ (SEED DATA)
+        // 3. ՄՈՔ ՏՎՅԱԼՆԵՐԻ ԱՎԵԼԱՑՈՒՄ (Իրական ֆայլերի անուններով)
         // ----------------------------------------------------
         
         async function seedData() {
+             // Օգտագործում ենք Ձեր տրամադրած ֆայլերի անունները որպես մոք հղումներ
+            const mockImageLinks = {
+                product1: [
+                    "19406984980_137110908.jpg", 
+                    "19332142653_137110908.jpg",
+                    "f0c1595a4dc4420cbe8172daf4cf6911.webp"
+                ],
+                product2: [
+                    "FireStep_produktne_04_3 (1).webp",
+                    "19406990831_137110908.jpg",
+                    "a3f71a0c-8120-4828-a23d-3689ebb1fd14.jpg"
+                ],
+                product3: [
+                    "19407014682_137110908.jpg",
+                    "19407020475_137110908.jpg"
+                ]
+            };
+            
             const mockProducts = [
-                { name: "Ամառային Զգեստ", price: 9500, description: "Թեթև, բամբակյա զգեստ։", article: "12345678", imageUrl: "https://placehold.co/400x300/a3e635/166534?text=Dress" },
-                { name: "Սպորտային Կոշիկներ", price: 18000, description: "Հարմարավետ վազքի համար։", article: "90123456", imageUrl: "https://placehold.co/400x300/4ade80/065f46?text=Shoes" },
-                { name: "Անջրանցիկ Ժամացույց", price: 12500, description: "Երկարակյաց, սպորտային մոդել։", article: "78901234", imageUrl: "https://placehold.co/400x300/34d399/047857?text=Watch" },
-                { name: "Բաճկոն", price: 29990, description: "Տաք, ձմեռային բաճկոն։", article: "56789012", imageUrl: "https://placehold.co/400x300/6ee7b7/059669?text=Jacket" }
+                { 
+                    name: "Զգեստ 'Ամառային Շունչ'", 
+                    price: 9500, 
+                    description: "Թեթև, բամբակյա զգեստ՝ վառ գույներով։", 
+                    article: "12345678", 
+                    imageUrl: mockImageLinks.product1[0], // Հիմնական նկար
+                    imageUrls: mockImageLinks.product1
+                },
+                { 
+                    name: "Բաճկոն 'Քամուց Պաշտպան'", 
+                    price: 24500, 
+                    description: "Անջրանցիկ, թեթև սպորտային բաճկոն։", 
+                    article: "56789012", 
+                    imageUrl: mockImageLinks.product2[0],
+                    imageUrls: mockImageLinks.product2
+                },
+                { 
+                    name: "Կոշիկներ 'Active Runner'", 
+                    price: 18000, 
+                    description: "Հարմարավետ վազքի համար, ամուր ներբանով։", 
+                    article: "90123456", 
+                    imageUrl: mockImageLinks.product3[0],
+                    imageUrls: mockImageLinks.product3
+                },
+                { 
+                    name: "Աքսեսուար 'Մեծ Զեղչ'", 
+                    price: 5500, 
+                    description: "Մանր դետալներ, որոնք կլրացնեն Ձեր կերպարը։", 
+                    article: "78901234", 
+                    imageUrl: "https://placehold.co/400x300/34d399/047857?text=WB+Accessory",
+                    imageUrls: ["https://placehold.co/400x300/34d399/047857?text=WB+Accessory"]
+                }
             ];
             
             const path = `artifacts/${app_id}/public/data/products`;
             const batch = db.batch();
             
             try {
-                // Նախ՝ ջնջում ենք հին ապրանքները
                 const snapshot = await db.collection(path).get();
                 snapshot.docs.forEach(doc => batch.delete(doc.ref));
 
-                // Ավելացնում ենք նորերը
                 mockProducts.forEach((product, index) => {
                     const docRef = db.collection(path).doc(`prod_${index + 1}`);
                     batch.set(docRef, product);
@@ -269,15 +356,48 @@
             }
         }
 
-        
+        // 🖼️ ՆԿԱՐՆԵՐԻ ՊԱՏԿԵՐԱՍՐԱՀԻ ՖՈՒՆԿՑԻԱ
+        function openImageGallery(product) {
+            const galleryModal = document.getElementById('image-modal');
+            const imagesContainer = document.getElementById('product-images-container');
+            const galleryName = document.getElementById('gallery-product-name');
+
+            const imageUrls = product.imageUrls || (product.imageUrl ? [product.imageUrl] : []);
+
+            if (imageUrls.length === 0) {
+                showMessage(`«${product.name}» ապրանքի համար նկարներ չկան։`);
+                return;
+            }
+
+            imagesContainer.innerHTML = '';
+            galleryName.textContent = `Նկարներ՝ ${product.name} (${imageUrls.length} հատ)`;
+            galleryName.classList.add('text-gray-800'); 
+
+            imageUrls.forEach(url => {
+                const imgElement = document.createElement('img');
+                imgElement.src = url;
+                imgElement.alt = product.name;
+                
+                imgElement.className = "w-full h-auto object-contain rounded-lg shadow-md transition-transform duration-200 hover:scale-[1.02] cursor-zoom-in";
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = "p-1"; 
+                wrapper.appendChild(imgElement);
+
+                imagesContainer.appendChild(wrapper);
+            });
+
+            galleryModal.classList.remove('hidden');
+        }
+
         // ----------------------------------------------------
-        // 4. ԱՊՐԱՆՔԻ ՀԱՅՏԻ ՈՒՂԱՐԿՈՒՄ (ՆՈՐ ՖՈՒՆԿՑԻԱ)
+        // 4. ԱՊՐԱՆՔԻ ՀԱՅՏԻ ՈՒՂԱՐԿՈՒՄ (Ձևի միջոցով)
         // ----------------------------------------------------
 
         async function sendProductRequest() {
             const requestName = document.getElementById('request-name').value.trim();
             const requestLink = document.getElementById('request-link').value.trim();
-            const requestArticle = document.getElementById('request-article').value.trim(); // Նոր դաշտ
+            const requestArticle = document.getElementById('request-article').value.trim();
 
             if (requestName === '' && requestArticle === '' && requestLink === '') {
                 showMessage("Խնդրում ենք մուտքագրել առնվազն ապրանքի անունը, արտիկուլը կամ հղումը։");
@@ -286,7 +406,7 @@
 
             const requestData = {
                 name: requestName,
-                article: requestArticle, // Ավելացված է
+                article: requestArticle,
                 link: requestLink,
                 userId: userId, 
                 tgUserId: tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 'N/A',
@@ -296,27 +416,24 @@
             const path = `artifacts/${app_id}/requests`; 
 
             try {
-                // 1. Տվյալները պահում ենք Firebase-ում
                 await db.collection(path).add(requestData);
                 
-                // 2. Ծանուցում ենք ուղարկում Բոտին (ադմինիստրատորին զգուշացնելու համար)
                 const linkDisplay = requestLink ? `(Հղում: ${requestLink})` : '';
                 const articleDisplay = requestArticle ? `(Արտիկուլ: ${requestArticle})` : '';
                 
-                const notificationText = `PRODUCT_REQUEST: ${requestName} ${articleDisplay} ${linkDisplay} | User ID: ${requestData.tgUserId}`;
+                // 🚀 ԾԱՆՈՒՑՈՒՄԸ ՁԵՎԻ ՄԻՋՈՑՈՎ ՈՒՂԱՐԿՎԱԾ ՀԱՅՏԻ ՀԱՄԱՐ
+                const notificationText = `PRODUCT_REQUEST_FORM: ${requestName} ${articleDisplay} ${linkDisplay} | User ID: ${requestData.tgUserId}`;
                 
                 tg.sendData(notificationText);
 
                 showMessage("Շնորհակալություն։ Ձեր հայտն ուղարկվել է մեզ։ Մենք շուտով կկապվենք Ձեզ հետ։");
                 
-                // Մաքրում ենք դաշտերը
                 document.getElementById('request-name').value = '';
                 document.getElementById('request-link').value = '';
-                document.getElementById('request-article').value = ''; // Մաքրում ենք նոր դաշտը
+                document.getElementById('request-article').value = '';
                 
-                // Փակում ենք WebApp-ը
-                tg.close();
-
+                // Կարող եք ընտրել փակել WebApp-ը հայտ ուղարկելուց հետո
+                // tg.close(); 
 
             } catch (error) {
                 console.error("Error sending request:", error);
@@ -325,11 +442,7 @@
         }
 
         
-        // Կցում ենք ՆՈՐ կոճակի լսողը
         document.getElementById('send-request-button').addEventListener('click', sendProductRequest);
-
-
-        // Գործարկում ենք ինիցիալիզացիան, երբ էջը բեռնված է
         window.onload = initializeFirebase;
     </script>
 </body>
