@@ -11,10 +11,10 @@
         :root {
             --wb-purple: #9b28a4; 
             --wb-light-purple: #c586c5;
-            --dark-bg: #111827; /* Ավելի մուգ գույն */
-            --dark-secondary-bg: #1f2937; /* Մուգ մոխրագույն */
-            --text-color: #f3f4f6; /* Բաց մոխրագույն տեքստ */
-            --muted-text: #9ca3af; /* Խուլ տեքստ */
+            --dark-bg: #111827; 
+            --dark-secondary-bg: #1f2937; 
+            --text-color: #f3f4f6; 
+            --muted-text: #9ca3af; 
         }
 
         body {
@@ -264,7 +264,7 @@
                 openImageGallery(product); 
             });
 
-            // 🚀 ԱՅՍՏԵՂ ՓՈՓՈԽՎԱԾ ԿՈԴԸ՝ INLINE ՀԱՅՏԻ ՀԱՄԱՐ
+            // 🚀 ՓՈՓՈԽՎԱԾ ԿՈԴԸ՝ INLINE ՀԱՅՏԻ ՀԱՄԱՐ (Telegram Ծանուցում)
             card.querySelector('button[data-action="request"]').addEventListener('click', (e) => {
                 const { productName, productArticle } = e.currentTarget.dataset;
                 
@@ -277,60 +277,60 @@
         }
         
         // ----------------------------------------------------
-        // 3. ՄՈՔ ՏՎՅԱԼՆԵՐԻ ԱՎԵԼԱՑՈՒՄ (Իրական ֆայլերի անուններով)
+        // 3. ՄՈՔ ՏՎՅԱԼՆԵՐԻ ԱՎԵԼԱՑՈՒՄ (Օգտագործում ենք բեռնված ֆայլերի անունները)
         // ----------------------------------------------------
         
         async function seedData() {
              // Օգտագործում ենք Ձեր տրամադրած ֆայլերի անունները որպես մոք հղումներ
             const mockImageLinks = {
                 product1: [
-                    "19406984980_137110908.jpg", 
-                    "19332142653_137110908.jpg",
-                    "f0c1595a4dc4420cbe8172daf4cf6911.webp"
+                    "19406984980_137110908.jpg", // Բաճկոն
+                    "19332142653_137110908.jpg", // Բաճկոնի հետև
+                    "19407038023_137110908.jpg" // Բաճկոն մուգ
                 ],
                 product2: [
-                    "FireStep_produktne_04_3 (1).webp",
-                    "19406990831_137110908.jpg",
-                    "a3f71a0c-8120-4828-a23d-3689ebb1fd14.jpg"
+                    "FireStep_produktne_04_3 (1).webp", // Կոշիկներ 3 հատ
+                    "a3f71a0c-8120-4828-a23d-3689ebb1fd14.jpg" // Կոշիկներ կապույտ
                 ],
                 product3: [
-                    "19407014682_137110908.jpg",
-                    "19407020475_137110908.jpg"
+                    "f0c1595a4dc4420cbe8172daf4cf6911.webp", // Ձմեռային բաճկոն
+                    "19407014682_137110908.jpg", // Բաճկոն սև
+                    "19407020475_137110908.jpg" // Բաճկոն մուգ կապույտ
                 ]
             };
             
             const mockProducts = [
                 { 
-                    name: "Զգեստ 'Ամառային Շունչ'", 
-                    price: 9500, 
-                    description: "Թեթև, բամբակյա զգեստ՝ վառ գույներով։", 
+                    name: "Բաճկոն 'Ամառային Քամի'", 
+                    price: 15500, 
+                    description: "Թեթև, անթև բաճկոն՝ բաց գույնի։", 
                     article: "12345678", 
-                    imageUrl: mockImageLinks.product1[0], // Հիմնական նկար
+                    imageUrl: mockImageLinks.product1[0], 
                     imageUrls: mockImageLinks.product1
                 },
                 { 
-                    name: "Բաճկոն 'Քամուց Պաշտպան'", 
+                    name: "Ձմեռային Կոշիկներ 'FireStep'", 
                     price: 24500, 
-                    description: "Անջրանցիկ, թեթև սպորտային բաճկոն։", 
-                    article: "56789012", 
+                    description: "Տաք, մորթով կոշիկներ՝ ցածր կտրվածքով։", 
+                    article: "90123456", 
                     imageUrl: mockImageLinks.product2[0],
                     imageUrls: mockImageLinks.product2
                 },
                 { 
-                    name: "Կոշիկներ 'Active Runner'", 
-                    price: 18000, 
-                    description: "Հարմարավետ վազքի համար, ամուր ներբանով։", 
-                    article: "90123456", 
+                    name: "Բաճկոն 'Պրեմիում'", 
+                    price: 39990, 
+                    description: "Մուգ, տաք բաճկոն՝ բրդյա օձիքով։", 
+                    article: "56789012", 
                     imageUrl: mockImageLinks.product3[0],
                     imageUrls: mockImageLinks.product3
                 },
                 { 
-                    name: "Աքսեսուար 'Մեծ Զեղչ'", 
-                    price: 5500, 
-                    description: "Մանր դետալներ, որոնք կլրացնեն Ձեր կերպարը։", 
+                    name: "Բաճկոն 'Սպորտային'", 
+                    price: 18000, 
+                    description: "Սև, թեթև, առանց թևքերի բաճկոն։", 
                     article: "78901234", 
-                    imageUrl: "https://placehold.co/400x300/34d399/047857?text=WB+Accessory",
-                    imageUrls: ["https://placehold.co/400x300/34d399/047857?text=WB+Accessory"]
+                    imageUrl: mockImageLinks.product3[1],
+                    imageUrls: [mockImageLinks.product3[1], mockImageLinks.product3[2]]
                 }
             ];
             
@@ -431,9 +431,6 @@
                 document.getElementById('request-name').value = '';
                 document.getElementById('request-link').value = '';
                 document.getElementById('request-article').value = '';
-                
-                // Կարող եք ընտրել փակել WebApp-ը հայտ ուղարկելուց հետո
-                // tg.close(); 
 
             } catch (error) {
                 console.error("Error sending request:", error);
